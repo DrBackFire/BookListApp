@@ -1,12 +1,3 @@
-//fetching Books from DB
-fetch("http://localhost:5000/books")
-  .then((res) => res.json())
-  .then((data) =>
-    data.map((d) => {
-      Book.getBooks(d);
-    })
-  );
-
 //Constructing Book
 class Book {
   constructor(title, author, isbn) {
@@ -31,33 +22,40 @@ class Book {
     tablemake.appendChild(row);
   }
 
-  //Getting Books From DB
-  static getBooks(data) {
-    let tablemake = document.getElementById("tableBody");
-    let row = document.createElement("tr");
-    row.className = "tData";
-    row.innerHTML = `
-          <td class="title">${data.title}</td>
-          <td class="author">${data.author}</td>
-          <td class="isbn">${data.isbn}</td>
-          <td>
-            <button class="btn btn-danger btn-sm delete" id="btnDelete" >X</button>
-          </td>
-          `;
-    tablemake.appendChild(row);
-  }
-
   // Function to delete a book from the table
   static deleteBook(el) {
     if (el.classList.contains("delete")) {
       el.parentElement.parentElement.remove();
-      Book.ShowAlert("Book Deleted", "warning");
+      UI.showAlert("Book Deleted", "warning");
     }
   }
 }
 
 class UI {
-  static ShowAlert(massage, className) {
+  static displayBooks() {
+    //fetching Books from DB
+    fetch("http://localhost:5000/books")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return res.json();
+      })
+      .then((data) =>
+        data.map((d) => {
+          Book.makeTable(d);
+          console.log(d);
+        })
+      )
+      .catch((error) => {
+        this.showAlert(
+          `There has been a problem with your fetch operation: ${error}`,
+          "warning"
+        );
+      });
+  }
+
+  static showAlert(massage, className) {
     const div = document.createElement("div");
     div.className = `alert alert-${className}`;
     div.appendChild(document.createTextNode(massage));
@@ -72,7 +70,7 @@ class UI {
       document.getElementById("btn").disabled = false;
     };
 
-    setTimeout(disableBtn, 2000);
+    setTimeout(disableBtn, 5000);
   }
 
   static clearFiled() {
@@ -108,7 +106,6 @@ class UI {
     }
   }
 }
-
 // Adding a Book
 document.getElementById("btn").addEventListener(
   "click",
@@ -125,7 +122,7 @@ document.getElementById("btn").addEventListener(
       const newBook = new Book(title, author, isbn);
       Book.makeTable(newBook);
       UI.clearFiled();
-      UI.ShowAlert("Book Added", "success");
+      UI.showAlert("Book Added", "success");
 
       fetch("http://localhost:5000/books", {
         method: "POST",
@@ -133,11 +130,12 @@ document.getElementById("btn").addEventListener(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(newBook),
+      }).catch((error) => {
+        UI.showAlert(
+          `There has been a problem with your fetch operation: ${error}`,
+          "warning"
+        );
       });
-      try {
-      } catch (err) {
-        UI.showAlert(err);
-      }
     }
   },
   false
@@ -145,6 +143,10 @@ document.getElementById("btn").addEventListener(
 
 document.getElementById("tableBody").addEventListener("click", (e) => {
   Book.deleteBook(e.target);
+  console.log(e.target);
 });
+
+// Event: Display Books
+document.addEventListener("DOMContentLoaded", UI.displayBooks);
 
 UI.searchBook();
