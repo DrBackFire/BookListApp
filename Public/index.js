@@ -21,9 +21,9 @@ class Book {
     let row = document.createElement("tr");
     row.className = "tData";
     row.innerHTML = `
-          <td>${Book.title}</td>
-          <td>${Book.author}</td>
-          <td>${Book.isbn}</td>
+          <td class="title">${Book.title}</td>
+          <td class="author">${Book.author}</td>
+          <td class="isbn">${Book.isbn}</td>
           <td>
             <button class="btn btn-danger btn-sm delete" id="btnDelete" >X</button>
           </td>
@@ -37,9 +37,9 @@ class Book {
     let row = document.createElement("tr");
     row.className = "tData";
     row.innerHTML = `
-          <td>${data.title}</td>
-          <td>${data.author}</td>
-          <td>${data.isbn}</td>
+          <td class="title">${data.title}</td>
+          <td class="author">${data.author}</td>
+          <td class="isbn">${data.isbn}</td>
           <td>
             <button class="btn btn-danger btn-sm delete" id="btnDelete" >X</button>
           </td>
@@ -82,13 +82,10 @@ class UI {
   }
 
   static searchBook() {
-    // Search by Author's Name
-    let ByAuthor = document.getElementById("ByAuthor");
     document.getElementById("Search").addEventListener("keyup", filtered);
 
     function filtered() {
       let input = document.getElementById("Search").value.toUpperCase();
-      console.log(input);
 
       let tBody = document.getElementById("tableBody");
       let tData = tBody.getElementsByTagName("tr");
@@ -106,7 +103,6 @@ class UI {
           tData[i].style.display = "";
         } else {
           tData[i].style.display = "none";
-          // UI.ShowAlert("Book Not Available", "warning");
         }
       }
     }
@@ -128,7 +124,6 @@ document.getElementById("btn").addEventListener(
     } else {
       const newBook = new Book(title, author, isbn);
       Book.makeTable(newBook);
-      // console.log(newBook);
       UI.clearFiled();
       UI.ShowAlert("Book Added", "success");
 
@@ -141,7 +136,7 @@ document.getElementById("btn").addEventListener(
       });
       try {
       } catch (err) {
-        console.log(err);
+        UI.showAlert(err);
       }
     }
   },

@@ -9,6 +9,7 @@
       integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
       crossorigin="anonymous"
     />
+    <link rel="stylesheet" href="index.css" />
     <script defer src="index.js"></script>
     <title>MyBookList</title>
   </head>
@@ -20,8 +21,6 @@
       >
         <svg
           class="bi bi-book-half d-inline mb-5 text-primary"
-          width="5em"
-          height="5em"
           viewBox="0 0 16 16"
           fill="currentColor"
           xmlns="http://www.w3.org/2000/svg"
@@ -37,18 +36,15 @@
             clip-rule="evenodd"
           />
         </svg>
-        <h1 class="d-inline display-2">
-          My<span class="text-primary display-2">Book</span>List
-        </h1>
-        <div class="form-group row w-50 text-left mx-auto">
-          <div class="col-lg">
-            <input
-              type="text"
-              class="form-control"
-              id="Search"
-              placeholder="Search Book By Title, Author or ISBN..."
-            />
-          </div>
+        <h1 class="d-inline">My<span class="text-primary">Book</span>List</h1>
+
+        <div class="col-lg mb-4">
+          <input
+            type="text"
+            class="form-control"
+            id="Search"
+            placeholder="Search Book By Title, Author or ISBN..."
+          />
         </div>
       </div>
       <form>

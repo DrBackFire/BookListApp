@@ -1,0 +1,22 @@
+svg {
+    width: 5.5rem;
+    height: 5.5rem;
+}
+
+h1 {
+    font-size: 5.5rem;
+    font-weight: 300;
+    line-height: 1.2;
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 3rem;
+    }
+
+    svg {
+        margin-top: 20px;
+        width: 3.5rem;
+        height: 3.5rem;
+    }
+}
