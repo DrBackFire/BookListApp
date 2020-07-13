@@ -6,22 +6,6 @@ class Book {
     this.isbn = isbn;
   }
 
-  // Function for making a row and inserting a new book
-  static makeTable(Book) {
-    let tablemake = document.getElementById("tableBody");
-    let row = document.createElement("tr");
-    row.className = "tData";
-    row.innerHTML = `
-          <td class="title">${Book.title}</td>
-          <td class="author">${Book.author}</td>
-          <td class="isbn">${Book.isbn}</td>
-          <td>
-            <button class="btn btn-danger btn-sm delete" id="btnDelete" >X</button>
-          </td>
-          `;
-    tablemake.appendChild(row);
-  }
-
   // Function to delete a book from the table
   static deleteBook(el) {
     if (el.classList.contains("delete")) {
@@ -31,8 +15,8 @@ class Book {
   }
 }
 
-class UI {
-  static displayBooks() {
+class DB {
+  static getBooks() {
     //fetching Books from DB
     fetch("http://localhost:5000/books")
       .then((res) => {
@@ -41,23 +25,93 @@ class UI {
         }
         return res.json();
       })
-      .then((data) =>
-        data.map((d) => {
-          Book.makeTable(d);
-          console.log(d);
-        })
-      )
+      .then((data) => {
+        UI.mapBooks(data);
+      })
+
       .catch((error) => {
-        this.showAlert(
+        // Show Error To User
+        UI.serverError(
           `There has been a problem with your fetch operation: ${error}`,
           "warning"
         );
       });
   }
 
+  static postBook(newBook) {
+    fetch("http://localhost:5000/books", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newBook),
+    }).catch((error) => {
+      // Show Error To User
+      UI.serverError(
+        `There has been a problem with your fetch operation: ${error}`,
+        "warning"
+      );
+    });
+  }
+}
+
+class UI {
+  static mapBooks(books) {
+    books.map((book) => {
+      this.makeTable(book);
+    });
+  }
+
+  // Function for making a row and inserting a new book
+  static makeTable(Book) {
+    let tablemake = document.getElementById("tableBody");
+    let row = document.createElement("tr");
+    row.className = "tData";
+    row.innerHTML = `
+            <td class="title">${Book.title}</td>
+            <td class="author">${Book.author}</td>
+            <td class="isbn">${Book.isbn}</td>
+            <td>
+              <button class="btn btn-danger btn-sm delete" id="btnDelete" >X</button>
+            </td>
+            `;
+    tablemake.appendChild(row);
+  }
+
+  static addBookToUI() {
+    const addBook = (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById("title").value;
+      const author = document.getElementById("author").value;
+      const isbn = document.getElementById("isbn").value;
+
+      if (title === "" || author === "" || isbn === "") {
+        this.showAlert("Please Fill The Form", "danger");
+      } else {
+        // Instantiate book
+        const newBook = new Book(title, author, isbn);
+
+        // Add Book to UI
+        this.makeTable(newBook);
+
+        // Clear fields
+        this.clearFiled();
+
+        // Show success message
+        this.showAlert("Book Added", "success");
+
+        // Post Book To DB
+        DB.postBook(newBook);
+      }
+    };
+
+    return addBook;
+  }
+
   static showAlert(massage, className) {
     const div = document.createElement("div");
-    div.className = `alert alert-${className}`;
+    div.className = `alert alert-${className} ShowAlert`;
     div.appendChild(document.createTextNode(massage));
     const parentDiv = document.getElementById("ShowAlert");
     parentDiv.appendChild(div);
@@ -66,11 +120,21 @@ class UI {
     document.getElementById("btn").disabled = true;
 
     const disableBtn = () => {
-      document.querySelector(".alert").remove();
+      document.querySelector(".ShowAlert").remove();
       document.getElementById("btn").disabled = false;
     };
 
-    setTimeout(disableBtn, 5000);
+    setTimeout(disableBtn, 3000);
+  }
+
+  static serverError(massage, className) {
+    const div = document.createElement("div");
+    div.className = `alert alert-${className} serverAlert`;
+    div.appendChild(document.createTextNode(massage));
+    const parentDiv = document.getElementById("serverAlert");
+    parentDiv.appendChild(div);
+
+    setTimeout(document.querySelector(".serverAlert").remove(), 10000);
   }
 
   static clearFiled() {
@@ -107,46 +171,15 @@ class UI {
   }
 }
 // Adding a Book
-document.getElementById("btn").addEventListener(
-  "click",
-  (e) => {
-    e.preventDefault();
-
-    const title = document.getElementById("title").value;
-    const author = document.getElementById("author").value;
-    const isbn = document.getElementById("isbn").value;
-
-    if (title === "" || author === "" || isbn === "") {
-      UI.ShowAlert("Please Fill The Form", "danger");
-    } else {
-      const newBook = new Book(title, author, isbn);
-      Book.makeTable(newBook);
-      UI.clearFiled();
-      UI.showAlert("Book Added", "success");
-
-      fetch("http://localhost:5000/books", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newBook),
-      }).catch((error) => {
-        UI.showAlert(
-          `There has been a problem with your fetch operation: ${error}`,
-          "warning"
-        );
-      });
-    }
-  },
-  false
-);
+document
+  .getElementById("btn")
+  .addEventListener("click", UI.addBookToUI(), false);
 
 document.getElementById("tableBody").addEventListener("click", (e) => {
   Book.deleteBook(e.target);
-  console.log(e.target);
 });
 
 // Event: Display Books
-document.addEventListener("DOMContentLoaded", UI.displayBooks);
+document.addEventListener("DOMContentLoaded", DB.getBooks);
 
 UI.searchBook();
